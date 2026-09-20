@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.aliveos.portal.filechooser" path="/org/aliveos/portal/filechooser/">
+    <key name="last-chooser-folder" type="s">
+      <default>''</default>
+      <summary>Last visited folder URI</summary>
+      <description>The URI of the folder that was last navigated to in the file chooser dialog.</description>
+    </key>
+    <key name="chooser-view-mode" type="s">
+      <default>'grid'</default>
+      <summary>File chooser view mode</summary>
+      <description>The active view style in the file chooser (grid, list, or compact).</description>
+    </key>
+    <key name="chooser-sort-column" type="s">
+      <default>'name'</default>
+      <summary>File chooser sort column</summary>
+      <description>Column used to sort files in the file chooser (name, size, type, modified).</description>
+    </key>
+    <key name="chooser-sort-ascending" type="b">
+      <default>true</default>
+      <summary>File chooser sort direction</summary>
+      <description>Whether file sorting is in ascending order.</description>
+    </key>
+    <key name="chooser-show-hidden" type="b">
+      <default>false</default>
+      <summary>Show hidden files</summary>
+      <description>Whether to show hidden files and directories in the file chooser.</description>
+    </key>
+  </schema>
+</schemalist>

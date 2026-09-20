@@ -1,4 +1,4 @@
-Source: xdg-desktop-portal-xapp-filepicker
+Source: xdg-desktop-portal-aliveos
 Section: gnome
 Priority: optional
 Maintainer: Linux Mint <root@linuxmint.com>
@@ -10,9 +10,9 @@ Build-Depends:
  systemd-dev (>= 253-2~) | systemd (<< 253-2~),
  xdg-desktop-portal-dev (>= 1.7.1),
 Standards-Version: 4.6.0
-Homepage: https://github.com/Twilight0/xdg-desktop-portal-xapp-filepicker
+Homepage: https://github.com/Twilight0/xdg-desktop-portal-aliveos
 
-Package: xdg-desktop-portal-xapp-filepicker
+Package: xdg-desktop-portal-aliveos
 Architecture: linux-any
 Multi-Arch: foreign
 Depends:
@@ -25,19 +25,16 @@ Depends:
  ${shlibs:Depends},
 Provides:
  xdg-desktop-portal-backend (= 1.7.1),
-Description: Xapp's Cinnamon, MATE and XFCE backends for xdg-desktop-portal.
+Description: Cinnamon, MATE, XFCE and Qtile portal backend for AliveOS.
  This allows sandboxed applications to request services and information from
- outside the sandbox in the MATE, XFCE and Cinnamon environments.
+ outside the sandbox, including an embedded rich file chooser dialog.
 
-Package: xdg-desktop-portal-xapp-filepicker-dbg
+Package: xdg-desktop-portal-aliveos-dbg
 Section: debug
 Priority: extra
 Architecture: any
 Depends:
- xdg-desktop-portal-xapp-filepicker (= ${binary:Version})
+ xdg-desktop-portal-aliveos (= ${binary:Version}),
  ${misc:Depends},
-Description: Xapp's Cinnamon, MATE and XFCE backends for xdg-desktop-portal.
- This allows sandboxed applications to request services and information from
- outside the sandbox in the MATE, XFCE and Cinnamon environments.
- .
- This package contains the debugging symbols for all backends.
+Description: Cinnamon, MATE, XFCE and Qtile portal backend for AliveOS (debugging symbols).
+ This package contains the debugging symbols for xdg-desktop-portal-aliveos.

@@ -1,0 +1,7 @@
+[Unit]
+Description=Portal service (AliveOS implementation)
+
+[Service]
+Type=dbus
+BusName=org.freedesktop.impl.portal.desktop.aliveos
+ExecStart=@libexecdir@/xdg-desktop-portal-aliveos

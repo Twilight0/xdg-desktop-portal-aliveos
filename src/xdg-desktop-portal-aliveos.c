@@ -163,7 +163,7 @@ on_name_acquired (GDBusConnection *connection,
                   const gchar     *name,
                   gpointer         user_data)
 {
-  g_debug ("org.freedesktop.impl.portal.desktop.filepicker acquired");
+  g_debug ("org.freedesktop.impl.portal.desktop.aliveos acquired");
 }
 
 static void
@@ -197,13 +197,13 @@ main (int argc, char *argv[])
   g_option_context_set_summary (context,
       "A backend implementation for xdg-desktop-portal.");
   g_option_context_set_description (context,
-      "xdg-desktop-portal-xapp-filepicker provides D-Bus interfaces that\n"
+      "xdg-desktop-portal-aliveos provides D-Bus interfaces that\n"
       "are used by xdg-desktop-portal to implement portals in Cinnamon, MATE or Xfce\n"
       "\n"
       "Documentation for the available D-Bus interfaces can be found at\n"
       "https://flatpak.github.io/xdg-desktop-portal/portal-docs.html\n"
       "\n"
-      "Please report issues at https://github.com/Twilight0/xdg-desktop-portal-xapp-filepicker/issues");
+      "Please report issues at https://github.com/Twilight0/xdg-desktop-portal-aliveos/issues");
   g_option_context_add_main_entries (context, entries, NULL);
   if (!g_option_context_parse (context, &argc, &argv, &error))
     {
@@ -265,7 +265,7 @@ main (int argc, char *argv[])
   if (opt_verbose)
     g_log_set_handler (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, message_handler, NULL);
 
-  g_set_prgname ("xdg-desktop-portal-xapp-filepicker");
+  g_set_prgname ("xdg-desktop-portal-aliveos");
 
   loop = g_main_loop_new (NULL, FALSE);
 
@@ -279,7 +279,7 @@ main (int argc, char *argv[])
     }
 
   owner_id = g_bus_own_name (G_BUS_TYPE_SESSION,
-                             "org.freedesktop.impl.portal.desktop.filepicker",
+                             "org.freedesktop.impl.portal.desktop.aliveos",
                              G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT | (opt_replace ? G_BUS_NAME_OWNER_FLAGS_REPLACE : 0),
                              on_bus_acquired,
                              on_name_acquired,

@@ -1,5 +1,0 @@
-usr/lib/systemd/user/xdg-desktop-portal-xapp-filepicker.service
-usr/libexec/xdg-desktop-portal-xapp-filepicker
-usr/share/applications/xdg-desktop-portal-xapp-filepicker.desktop
-usr/share/dbus-1/services/org.freedesktop.impl.portal.desktop.filepicker.service
-usr/share/xdg-desktop-portal/portals

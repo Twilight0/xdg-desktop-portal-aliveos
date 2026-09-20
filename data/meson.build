@@ -3,7 +3,7 @@ libexecdir_conf.set('libexecdir', prefix / libexecdir)
 
 # Portal
 install_data(
-  [ 'filepicker.portal', 'filepicker-gnome-keyring.portal' ],
+  [ 'aliveos.portal', 'aliveos-gnome-keyring.portal' ],
   install_dir: datadir / 'xdg-desktop-portal' / 'portals'
 )
 
@@ -13,8 +13,14 @@ install_data(
   install_dir: datadir / 'xdg-desktop-portal'
 )
 
+# GSettings schema
+install_data(
+  'org.aliveos.portal.filechooser.gschema.xml',
+  install_dir: datadir / 'glib-2.0' / 'schemas'
+)
+
 # dbus service
-service_name = 'org.freedesktop.impl.portal.desktop.filepicker'
+service_name = 'org.freedesktop.impl.portal.desktop.aliveos'
 configure_file(
   input: service_name + '.service.in',
   output: service_name + '.service',
@@ -22,7 +28,7 @@ configure_file(
   install_dir: dbus_service_dir,
 )
 
-filename = 'xdg-desktop-portal-xapp-filepicker'
+filename = 'xdg-desktop-portal-aliveos'
 # systemd unit
 configure_file(
   input: filename + '.service.in',

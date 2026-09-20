@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=org.freedesktop.impl.portal.desktop.aliveos
+Exec=@libexecdir@/xdg-desktop-portal-aliveos
+SystemdService=xdg-desktop-portal-aliveos.service

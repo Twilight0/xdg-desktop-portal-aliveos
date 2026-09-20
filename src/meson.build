@@ -51,12 +51,19 @@ built_sources += gnome.gdbus_codegen(
 config_entries = {
     'GETTEXT_PACKAGE' : '"@0@"'.format(meson.project_name()),
     'LOCALEDIR': '"@0@"'.format(prefix / get_option('localedir')),
-    'PACKAGE_STRING': '"xdg-desktop-portal-xapp-filepicker @0@"'.format(meson.project_version()),
-    'G_LOG_DOMAIN': '"xdg-desktop-portal-xapp-filepicker"'
+    'PACKAGE_STRING': '"xdg-desktop-portal-aliveos @0@"'.format(meson.project_version()),
+    'G_LOG_DOMAIN': '"xdg-desktop-portal-aliveos"'
 
 }
 config = configuration_data(config_entries)
 built_sources += configure_file(output: 'config.h', configuration: config)
+
+built_sources += gnome.compile_resources(
+  'aliveos-resources',
+  top_srcdir / 'data' / 'aliveos-filechooser.gresource.xml',
+  source_dir: top_srcdir / 'data',
+  c_name: 'aliveos_filechooser',
+)
 
 deps = [
   meson.get_compiler('c').find_library('m'),
@@ -67,6 +74,7 @@ deps = [
 ]
 
 sources = built_sources + files(
+  'aliveos-file-chooser-dialog.c',
   'background.c',
   'filechooser.c',
   'inhibit.c',
@@ -77,11 +85,11 @@ sources = built_sources + files(
   'settings.c',
   'utils.c',
   'wallpaper.c',
-  'xdg-desktop-portal-xapp-filepicker.c',
+  'xdg-desktop-portal-aliveos.c',
 )
 
 executable(
-  'xdg-desktop-portal-xapp-filepicker',
+  'xdg-desktop-portal-aliveos',
   sources,
   dependencies: deps,
   install: true,
