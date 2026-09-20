@@ -1,4 +1,4 @@
-project('xdg-desktop-portal-aliveos', 'c', version : '1.1.5', meson_version : '>= 0.56.0', license : 'LGPLv2.1+')
+project('xdg-desktop-portal-aliveos', 'c', version : '1.2.0', meson_version : '>= 0.56.0', license : 'LGPLv2.1+')
 
 prefix = get_option('prefix')
 datadir = get_option('datadir')
