@@ -56,6 +56,13 @@ config_entries = {
 
 }
 config = configuration_data(config_entries)
+
+gtk_x11_dep = dependency('gtk+-x11-3.0', required: false)
+config.set('HAVE_GTK_X11', gtk_x11_dep.found())
+
+gtk_wayland_dep = dependency('gtk+-wayland-3.0', required: false)
+config.set('HAVE_GTK_WAYLAND', gtk_wayland_dep.found())
+
 built_sources += configure_file(output: 'config.h', configuration: config)
 
 built_sources += gnome.compile_resources(
@@ -76,6 +83,7 @@ deps = [
 sources = built_sources + files(
   'aliveos-file-chooser-dialog.c',
   'background.c',
+  'externalwindow.c',
   'filechooser.c',
   'inhibit.c',
   'lockdown.c',
@@ -87,6 +95,16 @@ sources = built_sources + files(
   'wallpaper.c',
   'xdg-desktop-portal-aliveos.c',
 )
+
+if gtk_x11_dep.found()
+  deps += gtk_x11_dep
+  sources += files('externalwindow-x11.c')
+endif
+
+if gtk_wayland_dep.found()
+  deps += gtk_wayland_dep
+  sources += files('externalwindow-wayland.c')
+endif
 
 executable(
   'xdg-desktop-portal-aliveos',
