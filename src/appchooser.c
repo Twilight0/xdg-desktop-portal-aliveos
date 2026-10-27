@@ -48,6 +48,7 @@ typedef struct {
   GDBusMethodInvocation *invocation;
   Request *request;
   GtkWidget *dialog;
+  GtkWidget *fake_parent;
   ExternalWindow *external_parent;
 
   char *chosen;
@@ -64,6 +65,8 @@ app_dialog_handle_free (gpointer data)
   g_clear_object (&handle->external_parent);
   g_object_unref (handle->request);
   g_object_unref (handle->dialog);
+  gtk_widget_destroy (handle->fake_parent);
+  g_object_unref (handle->fake_parent);
   g_free (handle->chosen);
 
   g_free (handle);
@@ -216,6 +219,7 @@ handle_choose_application (XdpImplAppChooser *object,
   handle->invocation = invocation;
   handle->request = g_object_ref (request);
   handle->dialog = g_object_ref (dialog);
+  handle->fake_parent = fake_parent;
   handle->external_parent = external_parent;
 
   g_hash_table_insert (handles, handle->request->id, handle);

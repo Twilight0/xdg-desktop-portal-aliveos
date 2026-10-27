@@ -72,14 +72,16 @@ AppChooserRow *
 app_chooser_row_new (GAppInfo *info)
 {
   AppChooserRow *row;
-  GIcon *icon;
+  g_autoptr(GIcon) icon = NULL;
 
   row = g_object_new (app_chooser_row_get_type (), NULL);
 
   g_set_object (&row->info, info);
 
   icon = g_app_info_get_icon (info);
-  if (!icon)
+  if (icon)
+    g_object_ref (icon);
+  else
     icon = g_themed_icon_new ("application-x-executable");
 
   gtk_image_set_from_gicon (GTK_IMAGE (row->icon), icon, GTK_ICON_SIZE_DIALOG);

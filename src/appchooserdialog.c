@@ -38,10 +38,8 @@ struct _AppChooserDialog {
   GtkWindow parent;
 
   GtkWidget *scrolled_window;
-  GtkWidget *titlebar;
   GtkWidget *cancel_button;
   GtkWidget *open_button;
-  GtkWidget *find_software_button;
   GtkWidget *list;
   GtkWidget *heading;
   GtkWidget *stack;
@@ -194,45 +192,6 @@ open_clicked (GtkWidget *button,
   close_dialog (dialog, info);
 }
 
-static void
-show_error_dialog (const gchar *primary,
-                   const gchar *secondary,
-                   GtkWindow *parent)
-{
-  GtkWidget *message_dialog;
-
-  message_dialog = gtk_message_dialog_new (parent, 0,
-                                           GTK_MESSAGE_ERROR,
-                                           GTK_BUTTONS_OK,
-                                           NULL);
-  g_object_set (message_dialog,
-                "text", primary,
-                "secondary-text", secondary,
-                NULL);
-  gtk_dialog_set_default_response (GTK_DIALOG (message_dialog), GTK_RESPONSE_OK);
-  gtk_widget_show (message_dialog);
-  g_signal_connect (message_dialog, "response",
-                    G_CALLBACK (gtk_widget_destroy), NULL);
-}
-
-static void
-launch_software (AppChooserDialog *dialog)
-{
-  g_autoptr(GSubprocess) process = NULL;
-  g_autoptr(GError) error = NULL;
-
-  process = g_subprocess_new (0, &error, "mintinstall", NULL, NULL);
-  if (!process)
-    show_error_dialog (_("Failed to start Software Manager"), error->message, GTK_WINDOW (dialog));
-}
-
-static void
-find_in_software (GtkWidget *button,
-                  AppChooserDialog *dialog)
-{
-  launch_software (dialog);
-}
-
 static gboolean
 app_chooser_delete_event (GtkWidget *dialog, GdkEventAny *event)
 {
@@ -273,10 +232,8 @@ app_chooser_dialog_class_init (AppChooserDialogClass *class)
 
   gtk_widget_class_set_template_from_resource (widget_class, "/org/freedesktop/portal/desktop/xapp/appchooserdialog.ui");
   gtk_widget_class_bind_template_child (widget_class, AppChooserDialog, scrolled_window);
-  gtk_widget_class_bind_template_child (widget_class, AppChooserDialog, titlebar);
   gtk_widget_class_bind_template_child (widget_class, AppChooserDialog, cancel_button);
   gtk_widget_class_bind_template_child (widget_class, AppChooserDialog, open_button);
-  gtk_widget_class_bind_template_child (widget_class, AppChooserDialog, find_software_button);
   gtk_widget_class_bind_template_child (widget_class, AppChooserDialog, list);
   gtk_widget_class_bind_template_child (widget_class, AppChooserDialog, heading);
   gtk_widget_class_bind_template_child (widget_class, AppChooserDialog, stack);
@@ -287,7 +244,6 @@ app_chooser_dialog_class_init (AppChooserDialogClass *class)
   gtk_widget_class_bind_template_callback (widget_class, row_selected);
   gtk_widget_class_bind_template_callback (widget_class, cancel_clicked);
   gtk_widget_class_bind_template_callback (widget_class, open_clicked);
-  gtk_widget_class_bind_template_callback (widget_class, find_in_software);
 }
 
 /* Ellipsize the location, keeping the suffix which is likely
@@ -313,7 +269,7 @@ shorten_location (const char *location)
 }
 
 static void
-ensure_default_in_initial_list (const char **choices,
+ensure_default_in_initial_list (char       **choices,
                                 const char  *default_id)
 {
   int i;
@@ -322,7 +278,7 @@ ensure_default_in_initial_list (const char **choices,
   if (default_id == NULL)
     return;
 
-  n_choices = g_strv_length ((char **)choices);
+  n_choices = g_strv_length (choices);
   if (n_choices <= INITIAL_LIST_SIZE)
     return;
 
@@ -336,7 +292,7 @@ ensure_default_in_initial_list (const char **choices,
     {
       if (strcmp (choices[i], default_id) == 0)
         {
-          const char *tmp = choices[0];
+          char *tmp = choices[0];
           choices[0] = choices[i];
           choices[i] = tmp;
           return;
@@ -387,26 +343,28 @@ app_chooser_dialog_new (const char **choices,
       gtk_label_set_label (GTK_LABEL (dialog->heading), _("Choose an application."));
     }
 
-  ensure_default_in_initial_list (choices, default_id);
-
+  /* The caller's array is not ours to reorder, so work on a copy. */
   dialog->choices = g_strdupv ((char **)choices);
+  ensure_default_in_initial_list (dialog->choices, default_id);
+  choices = (const char **) dialog->choices;
 
   n_choices = g_strv_length ((char **)choices);
   if (n_choices == 0)
     {
       gtk_widget_show (dialog->empty_box);
       gtk_stack_set_visible_child_name (GTK_STACK (dialog->stack), "empty");
-      gtk_widget_grab_default (dialog->find_software_button);
+      gtk_widget_hide (dialog->open_button);
+      gtk_button_set_label (GTK_BUTTON (dialog->cancel_button), _("_OK"));
       if (location)
         {
           g_autofree char *label = NULL;
 
-          label = g_strdup_printf (_("No apps installed that can open “%s”. You can find more applications in Software Manager"), short_location);
+          label = g_strdup_printf (_("No apps installed that can open “%s”."), short_location);
           gtk_label_set_label (GTK_LABEL (dialog->empty_label), label);
         }
       else
         {
-          gtk_label_set_label (GTK_LABEL (dialog->empty_label), _("No suitable app installed. You can find more applications in Software Manager."));
+          gtk_label_set_label (GTK_LABEL (dialog->empty_label), _("No suitable app installed."));
         }
     }
   else
@@ -482,22 +440,21 @@ app_chooser_dialog_update_choices (AppChooserDialog  *dialog,
 
       g_ptr_array_add (new_choices, g_strdup (choices[i]));
 
-      if (!gtk_widget_get_visible (dialog->more_row))
+      /* While the "more" row is visible, extra choices stay hidden until it is expanded. */
+      if (dialog->more_row == NULL || !gtk_widget_get_visible (dialog->more_row))
         {
-          g_autofree char *desktop_id = NULL;
-          g_autoptr(GAppInfo) info = NULL;
+          g_autofree char *desktop_id = g_strconcat (choices[i], ".desktop", NULL);
+          g_autoptr(GAppInfo) info = G_APP_INFO (g_desktop_app_info_new (desktop_id));
           GtkWidget *row;
 
           if (info == NULL)
             continue;
 
-          desktop_id = g_strconcat (choices[i], ".desktop", NULL);
-          info = G_APP_INFO (g_desktop_app_info_new (desktop_id));
-
           row = GTK_WIDGET (app_chooser_row_new (info));
           gtk_widget_set_visible (row, TRUE);
           gtk_list_box_insert (GTK_LIST_BOX (dialog->list), row, -1);
-       }
+          gtk_stack_set_visible_child_name (GTK_STACK (dialog->stack), "list");
+        }
     }
 
   g_ptr_array_add (new_choices, NULL);
