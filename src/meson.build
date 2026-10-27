@@ -11,6 +11,7 @@ desktop_portal_interfaces_dir = xdg_desktop_portal_dep.get_variable(
 )
 
 desktop_portal_dbus_interfaces = [
+  desktop_portal_interfaces_dir / 'org.freedesktop.impl.portal.AppChooser.xml',
   desktop_portal_interfaces_dir / 'org.freedesktop.impl.portal.Background.xml',
   desktop_portal_interfaces_dir / 'org.freedesktop.impl.portal.Inhibit.xml',
   desktop_portal_interfaces_dir / 'org.freedesktop.impl.portal.Lockdown.xml',
@@ -31,6 +32,13 @@ built_sources = gnome.gdbus_codegen(
   sources: desktop_portal_dbus_interfaces,
   interface_prefix: 'org.freedesktop.impl.portal.',
   namespace: 'XdpImpl',
+)
+
+# GResources
+built_sources += gnome.compile_resources(
+  'xdg-desktop-portal-xapp-resources',
+  'xdg-desktop-portal-xapp.gresource.xml',
+  c_name: '_xdg_desktop',
 )
 
 desktop_dbus_interfaces = files(
@@ -56,6 +64,13 @@ config_entries = {
 
 }
 config = configuration_data(config_entries)
+
+gtk_x11_dep = dependency('gtk+-x11-3.0', required: false)
+config.set('HAVE_GTK_X11', gtk_x11_dep.found())
+
+gtk_wayland_dep = dependency('gtk+-wayland-3.0', required: false)
+config.set('HAVE_GTK_WAYLAND', gtk_wayland_dep.found())
+
 built_sources += configure_file(output: 'config.h', configuration: config)
 
 built_sources += gnome.compile_resources(
@@ -75,7 +90,11 @@ deps = [
 
 sources = built_sources + files(
   'aliveos-file-chooser-dialog.c',
+  'appchooser.c',
+  'appchooserdialog.c',
+  'appchooserrow.c',
   'background.c',
+  'externalwindow.c',
   'filechooser.c',
   'inhibit.c',
   'lockdown.c',
@@ -85,8 +104,19 @@ sources = built_sources + files(
   'settings.c',
   'utils.c',
   'wallpaper.c',
+  'wallpaperdialog.c',
   'xdg-desktop-portal-aliveos.c',
 )
+
+if gtk_x11_dep.found()
+  deps += gtk_x11_dep
+  sources += files('externalwindow-x11.c')
+endif
+
+if gtk_wayland_dep.found()
+  deps += gtk_wayland_dep
+  sources += files('externalwindow-wayland.c')
+endif
 
 executable(
   'xdg-desktop-portal-aliveos',
